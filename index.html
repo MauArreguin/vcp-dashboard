@@ -7,395 +7,214 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #ffffff;
-      --bg2:       #f5f5f4;
-      --bg3:       #e8e6e0;
-      --text:      #1a1a18;
-      --text2:     #6b6b67;
-      --text3:     #9d9b96;
-      --border:    rgba(0,0,0,0.10);
-      --border2:   rgba(0,0,0,0.20);
-      --radius:    10px;
-      --radius-lg: 14px;
-      --blue:      #185FA5;
-      --green:     #3B6D11;
-      --red:       #A32D2D;
-      --amber:     #BA7517;
-      --coral:     #D85A30;
-      --gray:      #888780;
+      --bg:#ffffff; --bg2:#f5f5f4; --bg3:#e8e6e0; --text:#1a1a18; --text2:#6b6b67; --text3:#9d9b96;
+      --border:rgba(0,0,0,0.10); --border2:rgba(0,0,0,0.20); --radius:10px; --radius-lg:14px;
+      --blue:#185FA5; --green:#3B6D11; --red:#A32D2D; --amber:#BA7517; --coral:#D85A30; --gray:#888780;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:    #1c1c1a;
-        --bg2:   #252522;
-        --bg3:   #2e2e2a;
-        --text:  #f0ede6;
-        --text2: #a8a59f;
-        --text3: #6b6b67;
-        --border:  rgba(255,255,255,0.10);
-        --border2: rgba(255,255,255,0.20);
-      }
+      :root { --bg:#1c1c1a; --bg2:#252522; --bg3:#2e2e2a; --text:#f0ede6; --text2:#a8a59f; --text3:#6b6b67; --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.20); }
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg3);
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .page { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
-
-    /* HEADER */
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
-    .header-title { font-size: 20px; font-weight: 500; }
-    .header-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-    .header-date { text-align: right; font-size: 11px; color: var(--text3); }
-    .header-date strong { display: block; font-size: 13px; font-weight: 500; color: var(--text); }
-
-    /* CARDS */
-    .card {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1rem 1.25rem;
-    }
-    .metric-card {
-      background: var(--bg2);
-      border-radius: var(--radius);
-      padding: .85rem 1rem;
-    }
-
-    /* SECTION LABEL */
-    .section-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text3);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 10px;
-    }
-    .h-section { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
-
-    /* 6-column header strip */
-    .strip6 {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0,1fr));
-      margin-bottom: 1.25rem;
-    }
-    .strip6 .cell {
-      padding: 1rem 1.1rem;
-      border-right: 0.5px solid var(--border);
-    }
-    .strip6 .cell:last-child { border-right: none; }
-    .strip6 .cell.sep { border-right: 2px solid var(--border2) !important; }
-
-    .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
-    .metric-val   { font-size: 22px; font-weight: 500; line-height: 1.15; }
-    .metric-val.muted { color: var(--text3); font-size: 18px; }
-    .metric-sub   { font-size: 11px; color: var(--text3); margin-top: 2px; }
-    .glabel { font-size: 9px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
-
-    .delta-up  { font-size: 11px; margin-top: 4px; color: #3B6D11; }
-    .delta-neu { font-size: 11px; margin-top: 4px; color: var(--text3); }
-
-    /* BUDGET BAR */
-    .bbar-wrap { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
-    .bbar-fill { height: 100%; border-radius: 3px; }
-
-    /* GRIDS */
-    .g2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
-    .g31 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
-    .mb { margin-bottom: 14px; }
-
-    /* PERIOD TABS */
-    .tabs { margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 4px; }
-    .tab {
-      padding: 5px 13px;
-      font-size: 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      border: 0.5px solid var(--border);
-      color: var(--text2);
-      background: transparent;
-      white-space: nowrap;
-    }
-    .tab.active { background: var(--bg2); color: var(--text); font-weight: 500; border-color: var(--border2); }
-    .tab.future { opacity: .4; cursor: default; }
-
-    .period-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      font-size: 11px;
-      border-radius: var(--radius);
-      background: #E6F1FB;
-      color: #0C447C;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-
-    /* PLATFORM SECTIONS */
-    .plat-section { border-left: 2px solid; padding-left: 10px; margin-bottom: 10px; }
-    .plat-section.meta   { border-color: var(--blue); }
-    .plat-section.google { border-color: var(--coral); }
-    .ps-label { font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; margin-bottom: 4px; }
-    .pill-on  { font-size: 10px; padding: 2px 6px; border-radius: 99px; background: #EAF3DE; color: #27500A; }
-    .pill-off { font-size: 10px; padding: 2px 6px; border-radius: 99px; background: #F1EFE8; color: #5F5E5A; }
-
-    /* TABLE */
-    .tbl { width: 100%; font-size: 12px; border-collapse: collapse; }
-    .tbl th {
-      font-size: 10px; font-weight: 500; color: var(--text3);
-      text-transform: uppercase; letter-spacing: .04em;
-      padding: 4px 6px; text-align: right;
-      border-bottom: 0.5px solid var(--border);
-    }
-    .tbl th:first-child { text-align: left; }
-    .tbl td { padding: 6px; color: var(--text); text-align: right; border-bottom: 0.5px solid var(--border); font-size: 12px; }
-    .tbl td:first-child { text-align: left; color: var(--text2); }
-    .tbl tr.total td { border-bottom: none; font-weight: 500; color: var(--text); background: var(--bg2); }
-
-    /* BADGES */
-    .b-meta   { background: #E6F1FB; color: #0C447C; }
-    .b-google { background: #FAECE7; color: #712B13; }
-    .b-total  { background: #EAF3DE; color: #27500A; }
-    .badge { font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: var(--radius); display: inline-block; }
-
-    /* COUNTRY */
-    .country-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid var(--border); }
-    .country-row:last-child { border-bottom: none; }
-    .country-name { font-size: 12px; flex: 1; }
-    .country-count { font-size: 12px; font-weight: 500; min-width: 30px; text-align: right; }
-    .country-pct { font-size: 11px; color: var(--text3); min-width: 34px; text-align: right; }
-    .cbar-wrap { flex: 2; height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
-    .cbar-fill { height: 100%; border-radius: 2px; }
-
-    /* DONUT LEGEND */
-    .leg-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
-    .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .leg-name { font-size: 11px; color: var(--text2); flex: 1; }
-    .leg-pct  { font-size: 11px; font-weight: 500; }
-
-    /* UTM RANKING */
-    .rank-row { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
-    .rank-row:last-child { border-bottom: none; }
-    .rank-num { font-size: 18px; font-weight: 500; text-align: center; padding-top: 2px; }
-    .gold   { color: #BA7517; } .silver { color: #888780; } .bronze { color: #993C1D; }
-    .fourth, .fifth { color: var(--text3); }
-    .rank-body { min-width: 0; }
-    .utm-line { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; overflow: hidden; }
-    .utm-lbl { font-size: 9px; font-weight: 500; padding: 2px 6px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; }
-    .lbl-c { background: #E6F1FB; color: #0C447C; }
-    .lbl-j { background: #EAF3DE; color: #27500A; }
-    .lbl-a { background: #FAEEDA; color: #633806; }
-    .utm-val { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .utm-bar-wrap { width: 100%; height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; margin-top: 5px; }
-    .utm-bar-fill { height: 100%; border-radius: 2px; background: var(--blue); }
-    .leads-col { text-align: right; padding-top: 2px; }
-    .leads-num { font-size: 20px; font-weight: 500; line-height: 1.1; }
-    .leads-lbl { font-size: 10px; color: var(--text3); }
-
-    /* LOADING */
-    .loading { text-align: center; padding: 3rem; color: var(--text3); font-size: 13px; }
-    .error-box { background: #FCEBEB; border: 0.5px solid #F09595; border-radius: var(--radius); padding: 1rem; color: #501313; font-size: 13px; margin-bottom: 1rem; }
-
-    /* FOOTER NOTE */
-    .foot { font-size: 11px; color: var(--text3); margin-top: 10px; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg3); color:var(--text); font-size:14px; line-height:1.5; }
+    .page { max-width:1100px; margin:0 auto; padding:1.5rem 1rem 3rem; }
+    .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; }
+    .header-title { font-size:20px; font-weight:500; }
+    .header-sub { font-size:12px; color:var(--text2); margin-top:2px; }
+    .header-date { text-align:right; font-size:11px; color:var(--text3); }
+    .header-date strong { display:block; font-size:13px; font-weight:500; color:var(--text); }
+    .card { background:var(--bg); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; }
+    .metric-card { background:var(--bg2); border-radius:var(--radius); padding:.85rem 1rem; }
+    .section-label { font-size:11px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .h-section { font-size:15px; font-weight:500; margin-bottom:12px; }
+    .strip6 { background:var(--bg); border:0.5px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); margin-bottom:1.25rem; }
+    .strip6 .cell { padding:1rem 1.1rem; border-right:0.5px solid var(--border); }
+    .strip6 .cell:last-child { border-right:none; }
+    .strip6 .cell.sep { border-right:2px solid var(--border2) !important; }
+    .metric-label { font-size:11px; color:var(--text2); margin-bottom:3px; }
+    .metric-val { font-size:22px; font-weight:500; line-height:1.15; }
+    .metric-val.muted { color:var(--text3); font-size:18px; }
+    .metric-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+    .glabel { font-size:9px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
+    .delta-up { font-size:11px; margin-top:4px; color:#3B6D11; }
+    .delta-neu { font-size:11px; margin-top:4px; color:var(--text3); }
+    .bbar-wrap { width:100%; height:5px; background:var(--border); border-radius:3px; margin-top:8px; overflow:hidden; }
+    .bbar-fill { height:100%; border-radius:3px; }
+    .g2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .g31 { display:grid; grid-template-columns:2fr 1fr; gap:14px; }
+    .mb { margin-bottom:14px; }
+    .tabs { margin-bottom:16px; display:flex; flex-wrap:wrap; gap:4px; }
+    .tab { padding:5px 13px; font-size:12px; border-radius:var(--radius); cursor:pointer; border:0.5px solid var(--border); color:var(--text2); background:transparent; white-space:nowrap; }
+    .tab.active { background:var(--bg2); color:var(--text); font-weight:500; border-color:var(--border2); }
+    .tab.future { opacity:.4; cursor:default; pointer-events:none; }
+    .period-badge { display:inline-block; padding:3px 10px; font-size:11px; border-radius:var(--radius); background:#E6F1FB; color:#0C447C; margin-left:8px; vertical-align:middle; }
+    .plat-section { border-left:2px solid; padding-left:10px; margin-bottom:10px; }
+    .plat-section.meta { border-color:var(--blue); }
+    .plat-section.google { border-color:var(--coral); }
+    .ps-label { font-size:10px; font-weight:500; color:var(--text3); text-transform:uppercase; margin-bottom:4px; }
+    .pill-on { font-size:10px; padding:2px 6px; border-radius:99px; background:#EAF3DE; color:#27500A; }
+    .pill-off { font-size:10px; padding:2px 6px; border-radius:99px; background:#F1EFE8; color:#5F5E5A; }
+    .tbl { width:100%; font-size:12px; border-collapse:collapse; }
+    .tbl th { font-size:10px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.04em; padding:4px 6px; text-align:right; border-bottom:0.5px solid var(--border); }
+    .tbl th:first-child { text-align:left; }
+    .tbl td { padding:6px; color:var(--text); text-align:right; border-bottom:0.5px solid var(--border); font-size:12px; }
+    .tbl td:first-child { text-align:left; color:var(--text2); }
+    .tbl tr.total td { border-bottom:none; font-weight:500; color:var(--text); background:var(--bg2); }
+    .b-meta { background:#E6F1FB; color:#0C447C; }
+    .b-google { background:#FAECE7; color:#712B13; }
+    .b-total { background:#EAF3DE; color:#27500A; }
+    .badge { font-size:10px; font-weight:500; padding:3px 8px; border-radius:var(--radius); display:inline-block; }
+    .country-row { display:flex; align-items:center; gap:8px; padding:5px 0; border-bottom:0.5px solid var(--border); }
+    .country-row:last-child { border-bottom:none; }
+    .country-name { font-size:12px; flex:1; }
+    .country-count { font-size:12px; font-weight:500; min-width:30px; text-align:right; }
+    .country-pct { font-size:11px; color:var(--text3); min-width:34px; text-align:right; }
+    .cbar-wrap { flex:2; height:4px; background:var(--bg2); border-radius:2px; overflow:hidden; }
+    .cbar-fill { height:100%; border-radius:2px; }
+    .leg-row { display:flex; align-items:center; gap:6px; padding:3px 0; }
+    .leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .leg-name { font-size:11px; color:var(--text2); flex:1; }
+    .leg-pct { font-size:11px; font-weight:500; }
+    .rank-row { display:grid; grid-template-columns:26px 1fr auto; gap:10px; align-items:start; padding:10px 0; border-bottom:0.5px solid var(--border); }
+    .rank-row:last-child { border-bottom:none; }
+    .rank-num { font-size:18px; font-weight:500; text-align:center; padding-top:2px; }
+    .gold { color:#BA7517; } .silver { color:#888780; } .bronze { color:#993C1D; } .fourth,.fifth { color:var(--text3); }
+    .rank-body { min-width:0; }
+    .utm-line { display:flex; align-items:center; gap:5px; margin-bottom:4px; overflow:hidden; }
+    .utm-lbl { font-size:9px; font-weight:500; padding:2px 6px; border-radius:99px; white-space:nowrap; flex-shrink:0; }
+    .lbl-c { background:#E6F1FB; color:#0C447C; }
+    .lbl-j { background:#EAF3DE; color:#27500A; }
+    .lbl-a { background:#FAEEDA; color:#633806; }
+    .utm-val { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .utm-bar-wrap { width:100%; height:4px; background:var(--bg2); border-radius:2px; overflow:hidden; margin-top:5px; }
+    .utm-bar-fill { height:100%; border-radius:2px; background:var(--blue); }
+    .leads-col { text-align:right; padding-top:2px; }
+    .leads-num { font-size:20px; font-weight:500; line-height:1.1; }
+    .leads-lbl { font-size:10px; color:var(--text3); }
+    .loading { text-align:center; padding:3rem; color:var(--text3); font-size:13px; }
+    .error-box { background:#FCEBEB; border:0.5px solid #F09595; border-radius:var(--radius); padding:1rem; color:#501313; font-size:13px; margin-bottom:1rem; }
+    .foot { font-size:11px; color:var(--text3); margin-top:10px; }
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ===== CONFIGURACIÓN — EDITA AQUÍ ===== -->
   <script>
-    // 🔧 PEGA AQUÍ TU URL DEL APPS SCRIPT (después de hacer deploy)
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVFgzIWuh9esxdALc_GtZ2aijxaC4Bko5RkwKE8skPtq5vRN5yDzvZIVWI9nZ7KbjxeA/exec';
-
-    // Semanas de miércoles a martes — Abril 2026
     const SEMANAS = [
-      { id: 's1', label: 'Sem 1 · mié 1 — mar 7 abr',   inicio: '2026-04-01', fin: '2026-04-07' },
-      { id: 's2', label: 'Sem 2 · mié 8 — mar 14 abr',  inicio: '2026-04-08', fin: '2026-04-14' },
-      { id: 's3', label: 'Sem 3 · mié 15 — mar 21 abr', inicio: '2026-04-15', fin: '2026-04-21' },
-      { id: 's4', label: 'Sem 4 · mié 22 — mar 28 abr', inicio: '2026-04-22', fin: '2026-04-28' },
+      { id:'s1', label:'Sem 1 · 1–7 abr',   inicio:'2026-04-01', fin:'2026-04-07' },
+      { id:'s2', label:'Sem 2 · 8–14 abr',  inicio:'2026-04-08', fin:'2026-04-14' },
+      { id:'s3', label:'Sem 3 · 15–21 abr', inicio:'2026-04-15', fin:'2026-04-21' },
+      { id:'s4', label:'Sem 4 · 22–28 abr', inicio:'2026-04-22', fin:'2026-04-28' },
     ];
-
-    // Presupuesto mensual
-    const PRES = { total: 4000, meta: 3500, google: 500, semanal: 1000, metaCPL: 1.90 };
+    const PRES = { total:4000, meta:3500, google:500, semanal:1000, metaCPL:1.90 };
   </script>
-  <!-- ======================================= -->
 
   <div id="root"><div class="loading">Cargando datos...</div></div>
 
   <script>
-  // ============================================================
-  // DATOS HARDCODEADOS (fallback si no hay Apps Script URL)
-  // ============================================================
-  const FALLBACK = {
-    actualizado: '10 abr 2026',
-    global: { inversion: 1005, leads: 766, cpl: 1.31, pctEjecutado: 25.1 },
-    meta: {
-      mesTotal: { inversion: 1005, leads: 766, cpl: 1.31, pctPresupuesto: 28.7 },
-      dias: [
-        { fecha: '2026-04-09', gasto: 3.53,   leads: 2  },
-        { fecha: '2026-04-10', gasto: 15.38,  leads: 10 },
-      ],
-      porSemana: {
-        s1: { inversion: 372, leads: 349, cpl: 1.07, pctPresupuesto: 37.2,
-              dias: [
-                { fecha: '2026-04-04', gasto: 47.58,  leads: 41  },
-                { fecha: '2026-04-05', gasto: 58.71,  leads: 56  },
-                { fecha: '2026-04-06', gasto: 84.36,  leads: 93  },
-                { fecha: '2026-04-07', gasto: 180.98, leads: 159 },
-              ]},
-        s2: { inversion: 633, leads: 417, cpl: 1.52, pctPresupuesto: 63.3,
-              dias: [
-                { fecha: '2026-04-08', gasto: 254.22, leads: 215 },
-                { fecha: '2026-04-09', gasto: 253.67, leads: 149 },
-                { fecha: '2026-04-10', gasto: 125.30, leads: 53  },
-              ]},
-        s3: null, s4: null,
-      }
-    },
-    google: {
-      mesTotal: { inversion: 0, leads: 0, cpl: 0, pctPresupuesto: 0 },
-      dias: [], porSemana: { s1: null, s2: null, s3: null, s4: null }
-    },
-    registros: {
-      total: 668,
-      porPais: { MX: 312, CO: 247, US: 62, ES: 8, AR: 7, VE: 6, UY: 5, otros: 21 },
-      porSemana: {
-        s1: { total: 272, porPais: { MX: 140, CO: 98, US: 22, ES: 3, VE: 2, AR: 2, UY: 1, otros: 4 } },
-        s2: { total: 387, porPais: { MX: 172, CO: 149, US: 40, ES: 5, VE: 4, AR: 5, UY: 4, otros: 8 } },
-        s3: null, s4: null,
-      }
-    },
-    utms: {
-      mesTop5: [
-        { camp: 'ADV México', conj: 'ABO Versión 1', ad: 'Img — 40 horas', leads: 112 },
-        { camp: 'ADV México', conj: 'ABO Versión 1', ad: 'Img — Tienes +5', leads: 86 },
-        { camp: 'ADV Colombia', conj: 'ABO Versión 1', ad: 'Img — 40 horas', leads: 79 },
-        { camp: 'ADV Colombia', conj: 'ABO V1 Intereses', ad: 'Img — Tienes +5', leads: 61 },
-        { camp: 'ADV México', conj: 'ABO V1 Intereses', ad: 'Reel — Paola Aldaz', leads: 44 },
-      ],
-      porSemana: {
-        s1: [
-          { camp: 'ADV México', conj: 'ABO Versión 1', ad: 'Img — 40 horas', leads: 51 },
-          { camp: 'ADV México', conj: 'ABO Versión 1', ad: 'Img — Tienes +5', leads: 38 },
-          { camp: 'ADV Colombia', conj: 'ABO Versión 1', ad: 'Img — 40 horas', leads: 34 },
-          { camp: 'ADV Colombia', conj: 'ABO V1 Intereses', ad: 'Img — Tienes +5', leads: 26 },
-          { camp: 'ADV México', conj: 'ABO V1 Intereses', ad: 'Reel — Paola Aldaz', leads: 18 },
-        ],
-        s2: [
-          { camp: 'ADV México', conj: 'ABO Versión 1', ad: 'Img — 40 horas', leads: 61 },
-          { camp: 'ADV México', conj: 'ABO Versión 1', ad: 'Img — Tienes +5', leads: 48 },
-          { camp: 'ADV Colombia', conj: 'ABO Versión 1', ad: 'Img — 40 horas', leads: 45 },
-          { camp: 'ADV Colombia', conj: 'ABO V1 Intereses', ad: 'Img — Tienes +5', leads: 35 },
-          { camp: 'ADV México', conj: 'ABO V1 Intereses', ad: 'Reel — Paola Aldaz', leads: 26 },
-        ],
-        s3: [], s4: [],
-      }
-    }
-  };
-
-  // ============================================================
-  // PALETA DE PAÍSES
-  // ============================================================
   const PAISES = {
-    MX:    { name: 'México',         flag: '🇲🇽', color: '#185FA5' },
-    CO:    { name: 'Colombia',       flag: '🇨🇴', color: '#3B6D11' },
-    US:    { name: 'USA / Hispanos', flag: '🇺🇸', color: '#639922' },
-    ES:    { name: 'España',         flag: '🇪🇸', color: '#BA7517' },
-    AR:    { name: 'Argentina',      flag: '🇦🇷', color: '#0F6E56' },
-    VE:    { name: 'Venezuela',      flag: '🇻🇪', color: '#993C1D' },
-    UY:    { name: 'Uruguay',        flag: '🇺🇾', color: '#534AB7' },
-    otros: { name: 'Otros',          flag: '🌎',  color: '#B4B2A9' },
+    MX:    { name:'México',         flag:'🇲🇽', color:'#185FA5' },
+    CO:    { name:'Colombia',       flag:'🇨🇴', color:'#3B6D11' },
+    US:    { name:'USA / Hispanos', flag:'🇺🇸', color:'#639922' },
+    ES:    { name:'España',         flag:'🇪🇸', color:'#BA7517' },
+    AR:    { name:'Argentina',      flag:'🇦🇷', color:'#0F6E56' },
+    VE:    { name:'Venezuela',      flag:'🇻🇪', color:'#993C1D' },
+    UY:    { name:'Uruguay',        flag:'🇺🇾', color:'#534AB7' },
+    CL:    { name:'Chile',          flag:'🇨🇱', color:'#A32D2D' },
+    PE:    { name:'Perú',           flag:'🇵🇪', color:'#D85A30' },
+    GT:    { name:'Guatemala',      flag:'🇬🇹', color:'#0F6E56' },
+    DO:    { name:'Rep. Dominicana',flag:'🇩🇴', color:'#534AB7' },
+    otros: { name:'Otros',          flag:'🌎',  color:'#B4B2A9' },
   };
-
-  const MEDALS = ['gold', 'silver', 'bronze', 'fourth', 'fifth'];
+  const MEDALS = ['gold','silver','bronze','fourth','fifth'];
   let DATA = null;
   let charts = {};
   let currentPeriod = 'month';
 
-  // ============================================================
-  // CARGA DE DATOS
-  // ============================================================
-  async function loadData() {
-    if (!APPS_SCRIPT_URL) {
-      DATA = FALLBACK;
-      render();
-      return;
-    }
-    try {
-      const res = await fetch(APPS_SCRIPT_URL + '?action=all');
-      DATA = await res.json();
-      if (DATA.error) throw new Error(DATA.error);
-      render();
-    } catch (err) {
-      console.warn('Apps Script error, usando datos de ejemplo:', err);
-      DATA = FALLBACK;
-      render();
-    }
+  // ── normaliza el objeto plataforma sin importar si viene .inv o .inversion ──
+  function normPlat(p) {
+    if (!p) return { inv:0, leads:0, cpl:0, pctPresupuesto:0 };
+    return {
+      inv:            p.inv            ?? p.inversion      ?? 0,
+      leads:          p.leads          ?? 0,
+      cpl:            p.cpl            ?? 0,
+      pctPresupuesto: p.pctPresupuesto ?? p.pctEjecutado   ?? 0,
+    };
+  }
+  function normSem(s) {
+    if (!s) return { dias:[], inv:0, leads:0, cpl:0, pct:0 };
+    return {
+      dias:  s.dias  || [],
+      inv:   s.inv   ?? s.inversion ?? 0,
+      leads: s.leads ?? 0,
+      cpl:   s.cpl   ?? 0,
+      pct:   s.pct   ?? s.pctPresupuesto ?? 0,
+    };
   }
 
-  // ============================================================
-  // RENDER PRINCIPAL
-  // ============================================================
+  async function loadData() {
+    try {
+      const res = await fetch(APPS_SCRIPT_URL);
+      const raw = await res.json();
+      if (raw.error) throw new Error(raw.error);
+      DATA = raw;
+    } catch(err) {
+      console.warn('Error cargando datos:', err);
+      document.getElementById('root').innerHTML =
+        '<div class="error-box">⚠️ Error al cargar datos del servidor.<br><small>' + err.message + '</small></div>';
+      return;
+    }
+    render();
+  }
+
   function render() {
-    const root = document.getElementById('root');
-    root.innerHTML = buildHTML();
-    attachEvents();
+    document.getElementById('root').innerHTML = buildHTML();
     renderPeriod('month');
   }
 
   function buildHTML() {
-    const d = DATA;
-    const m = d.meta.mesTotal;
-    const g = d.google.mesTotal;
-    const gl = d.global;
+    const d  = DATA;
+    const m  = normPlat(d.meta?.mesTotal);
+    const g  = normPlat(d.google?.mesTotal);
+    const gl = d.global || {};
+
+    const glInv  = gl.inversion    || 0;
+    const glLds  = gl.leads        || 0;
+    const glCpl  = gl.cpl          || 0;
+    const glPct  = gl.pctEjecutado || 0;
 
     return `
-    <!-- HEADER -->
     <div class="header">
       <div>
         <div class="header-title">The Appointment Engine</div>
         <div class="header-sub">Vende Como Pro — Meta ADS + Google ADS</div>
       </div>
-      <div class="header-date">
-        Actualizado<strong>${d.actualizado}</strong>
-      </div>
+      <div class="header-date">Actualizado<strong>${d.actualizado || '—'}</strong></div>
     </div>
 
-    <!-- RESUMEN MES (siempre fijo) -->
     <div class="section-label">Resumen del mes — Abril 2026</div>
     <div class="strip6">
       <div class="cell sep">
         <div class="glabel">Global</div>
         <div class="metric-label">Inversión total</div>
-        <div class="metric-val">$${fmt(gl.inversion)}</div>
+        <div class="metric-val">$${fmt(glInv)}</div>
         <div class="metric-sub">de $${fmt(PRES.total)} presup.</div>
-        <div class="bbar-wrap"><div class="bbar-fill" style="width:${gl.pctEjecutado}%;background:#3B6D11"></div></div>
-        <div class="metric-sub">${gl.pctEjecutado}% ejecutado</div>
+        <div class="bbar-wrap"><div class="bbar-fill" style="width:${Math.min(glPct,100)}%;background:#3B6D11"></div></div>
+        <div class="metric-sub">${glPct}% ejecutado</div>
       </div>
       <div class="cell sep">
         <div class="glabel">Global</div>
         <div class="metric-label">Leads totales</div>
-        <div class="metric-val">${gl.leads}</div>
-        <div class="metric-sub">CPL global $${gl.cpl}</div>
+        <div class="metric-val">${glLds}</div>
+        <div class="metric-sub">CPL global $${glCpl}</div>
         <div class="delta-up">↓ vs meta $${PRES.metaCPL}</div>
       </div>
       <div class="cell">
         <div class="glabel" style="color:#0C447C">Meta ADS</div>
         <div class="metric-label">Inversión Meta</div>
-        <div class="metric-val">$${fmt(m.inversion)}</div>
+        <div class="metric-val">$${fmt(m.inv)}</div>
         <div class="metric-sub">de $${fmt(PRES.meta)} presup.</div>
-        <div class="bbar-wrap"><div class="bbar-fill" style="width:${m.pctPresupuesto}%;background:#185FA5"></div></div>
+        <div class="bbar-wrap"><div class="bbar-fill" style="width:${Math.min(m.pctPresupuesto,100)}%;background:#185FA5"></div></div>
         <div class="metric-sub">${m.pctPresupuesto}% ejecutado</div>
       </div>
       <div class="cell sep">
@@ -408,10 +227,10 @@
       <div class="cell">
         <div class="glabel" style="color:#712B13">Google ADS</div>
         <div class="metric-label">Inversión Google</div>
-        <div class="metric-val muted">$${fmt(g.inversion)}</div>
+        <div class="metric-val muted">$${fmt(g.inv)}</div>
         <div class="metric-sub">de $${fmt(PRES.google)} presup.</div>
-        <div class="bbar-wrap"><div class="bbar-fill" style="width:${g.pctPresupuesto}%;background:#D85A30"></div></div>
-        <div class="metric-sub">${g.pctPresupuesto > 0 ? g.pctPresupuesto + '% ejecutado' : 'Inicia hoy'}</div>
+        <div class="bbar-wrap"><div class="bbar-fill" style="width:${Math.min(g.pctPresupuesto,100)}%;background:#D85A30"></div></div>
+        <div class="metric-sub">${g.pctPresupuesto}% ejecutado</div>
       </div>
       <div class="cell">
         <div class="glabel" style="color:#712B13">Google ADS</div>
@@ -422,22 +241,23 @@
       </div>
     </div>
 
-    <!-- SELECTOR DE PERIODO -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
       <div class="section-label" style="margin-bottom:0">Periodo</div>
       <span class="period-badge" id="period-badge">Todo el mes</span>
     </div>
     <div class="tabs">
-      ${SEMANAS.map(s => `<button class="tab${s.id === 's3' || s.id === 's4' ? ' future' : ''}" data-period="${s.id}" onclick="setPeriod('${s.id}',this)">${s.label}</button>`).join('')}
-      <button class="tab active" data-period="month" onclick="setPeriod('month',this)">Todo el mes</button>
+      ${SEMANAS.map(s => {
+        const future = s.id === 's3' || s.id === 's4';
+        return `<button class="tab${future?' future':''}" onclick="setPeriod('${s.id}',this)">${s.label}</button>`;
+      }).join('')}
+      <button class="tab active" onclick="setPeriod('month',this)">Todo el mes</button>
     </div>
 
-    <!-- GRÁFICA + PRESUPUESTO -->
     <div class="g31 mb">
       <div class="card">
         <div class="h-section" id="chart-title">Rendimiento diario — todo el mes</div>
         <div style="position:relative;width:100%;height:185px">
-          <canvas id="dailyChart" role="img" aria-label="Gasto diario y leads"></canvas>
+          <canvas id="dailyChart"></canvas>
         </div>
         <div style="display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--text2)">
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#185FA5;display:inline-block"></span>Gasto ($)</span>
@@ -445,32 +265,30 @@
         </div>
       </div>
       <div class="card">
-        <div class="h-section" id="budget-title">Presupuesto</div>
+        <div class="h-section">Presupuesto</div>
         <div class="metric-card" style="margin-bottom:12px">
           <div class="metric-label" id="bud-label">Mes completo</div>
-          <div style="font-size:20px;font-weight:500" id="bud-spend">$1,005</div>
-          <div class="metric-sub" id="bud-sub">4 al 10 de abril</div>
-          <div class="bbar-wrap"><div class="bbar-fill" id="bud-bar" style="width:25.1%;background:#185FA5"></div></div>
-          <div style="font-size:10px;color:var(--text3);margin-top:3px" id="bud-pct">25.1% de $4,000</div>
+          <div style="font-size:20px;font-weight:500" id="bud-spend">—</div>
+          <div class="bbar-wrap"><div class="bbar-fill" id="bud-bar" style="width:0%;background:#185FA5"></div></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px" id="bud-pct">—</div>
         </div>
         <div class="plat-section meta">
           <div class="ps-label">Meta ADS</div>
           <div style="display:flex;align-items:center;gap:6px">
             <span class="pill-on">Activa</span>
-            <span style="font-size:11px;color:var(--text2)" id="meta-accum">$1,005 acumulado</span>
+            <span style="font-size:11px;color:var(--text2)" id="meta-accum">$${fmt(m.inv)} acumulado</span>
           </div>
         </div>
         <div class="plat-section google" style="margin-bottom:0">
           <div class="ps-label">Google ADS</div>
           <div style="display:flex;align-items:center;gap:6px">
-            <span class="${g.inversion > 0 ? 'pill-on' : 'pill-off'}">${g.inversion > 0 ? 'Activa' : 'Inicia hoy'}</span>
-            <span style="font-size:11px;color:var(--text2)">$${fmt(g.inversion)}</span>
+            <span class="${g.inv > 0 ? 'pill-on' : 'pill-off'}">${g.inv > 0 ? 'Activa' : 'Sin datos'}</span>
+            <span style="font-size:11px;color:var(--text2)">$${fmt(g.inv)}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TABLA + CPL -->
     <div class="g2 mb">
       <div class="card">
         <div class="h-section">Inversión por plataforma</div>
@@ -481,9 +299,7 @@
       </div>
       <div class="card">
         <div class="h-section">CPL diario vs meta</div>
-        <div style="position:relative;width:100%;height:130px">
-          <canvas id="cplChart" role="img" aria-label="CPL diario"></canvas>
-        </div>
+        <div style="position:relative;width:100%;height:130px"><canvas id="cplChart"></canvas></div>
         <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2)">
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:2px;background:#185FA5;display:inline-block"></span>CPL real</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:2px;background:#E24B4A;display:inline-block"></span>Meta $${PRES.metaCPL}</span>
@@ -491,50 +307,33 @@
       </div>
     </div>
 
-    <!-- PAÍSES -->
     <div class="card mb">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="h-section" style="margin-bottom:0">Registros por país</div>
-        <div style="font-size:11px;color:var(--text3)" id="total-regs">Total: ${d.registros.total} registros</div>
+        <div style="font-size:11px;color:var(--text3)" id="total-regs">Total: ${d.registros?.total || 0} registros</div>
       </div>
       <div class="g2">
         <div id="country-list"></div>
         <div>
-          <div style="position:relative;width:100%;height:180px">
-            <canvas id="donutChart" role="img" aria-label="Distribución por país"></canvas>
-          </div>
+          <div style="position:relative;width:100%;height:180px"><canvas id="donutChart"></canvas></div>
           <div id="donut-legend" style="margin-top:8px"></div>
         </div>
       </div>
     </div>
 
-    <!-- UTMs -->
     <div class="card">
       <div style="margin-bottom:14px">
         <div class="h-section" style="margin-bottom:2px">Rendimiento por UTMs</div>
         <div style="font-size:12px;color:var(--text2)">Top 5 combinaciones campaña + conjunto + anuncio</div>
       </div>
       <div id="utm-list"></div>
-      <div style="position:relative;width:100%;height:130px;margin-top:14px">
-        <canvas id="utmChart" role="img" aria-label="Top 5 UTMs"></canvas>
-      </div>
-      <div style="display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--text2)">
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#185FA5;display:inline-block"></span>Leads por combinación</span>
-      </div>
+      <div style="position:relative;width:100%;height:130px;margin-top:14px"><canvas id="utmChart"></canvas></div>
     </div>
 
-    <div class="foot" id="foot-note">* Sem 3 y Sem 4 se activarán conforme avance el mes. Google ADS inicia hoy.</div>
+    <div class="foot">* Sem 3 y Sem 4 se activarán conforme avance el mes.</div>
     `;
   }
 
-  // ============================================================
-  // EVENTOS
-  // ============================================================
-  function attachEvents() {}
-
-  // ============================================================
-  // RENDER POR PERIODO
-  // ============================================================
   function setPeriod(key, btn) {
     document.querySelectorAll('.tab:not(.future)').forEach(t => t.classList.remove('active'));
     if (btn) btn.classList.add('active');
@@ -546,109 +345,83 @@
     const d = DATA;
     const isMes = key === 'month';
 
-    // Badge
     document.getElementById('period-badge').textContent =
       isMes ? 'Todo el mes' : (SEMANAS.find(s => s.id === key)?.label || key);
 
-    // Días y datos del periodo
-    let dias = [], invMeta = 0, leadsMeta = 0, invGoogle = 0, leadsGoogle = 0;
-    let paises = {};
+    let dias = [], invMeta = 0, leadsMeta = 0, invGoogle = 0, leadsGoogle = 0, paises = {};
 
     if (isMes) {
-      dias = d.meta.dias;
-      invMeta    = d.meta.mesTotal.inversion;
-      leadsMeta  = d.meta.mesTotal.leads;
-      invGoogle  = d.google.mesTotal.inversion;
-      leadsGoogle = d.google.mesTotal.leads;
-      paises     = d.registros.porPais;
+      dias        = d.meta?.dias || [];
+      const m     = normPlat(d.meta?.mesTotal);
+      const g     = normPlat(d.google?.mesTotal);
+      invMeta     = m.inv;
+      leadsMeta   = m.leads;
+      invGoogle   = g.inv;
+      leadsGoogle = g.leads;
+      paises      = d.registros?.porPais || {};
     } else {
-      const semMeta   = d.meta.porSemana?.[key];
-      const semGoogle = d.google.porSemana?.[key];
-      const semRegs   = d.registros.porSemana?.[key];
-      if (semMeta) {
-        dias       = semMeta.dias || [];
-        invMeta    = semMeta.inversion || 0;
-        leadsMeta  = semMeta.leads || 0;
-      }
-      if (semGoogle) {
-        invGoogle  = semGoogle.inversion || 0;
-        leadsGoogle = semGoogle.leads || 0;
-      }
-      paises = semRegs?.porPais || {};
+      const semMeta   = normSem(d.meta?.porSemana?.[key]);
+      const semGoogle = normSem(d.google?.porSemana?.[key]);
+      dias        = semMeta.dias;
+      invMeta     = semMeta.inv;
+      leadsMeta   = semMeta.leads;
+      invGoogle   = semGoogle.inv;
+      leadsGoogle = semGoogle.leads;
+      paises      = d.registros?.porSemana?.[key]?.porPais || {};
     }
 
     const invTotal   = invMeta + invGoogle;
     const leadsTotal = leadsMeta + leadsGoogle;
+    const presBase   = isMes ? PRES.total : PRES.semanal;
+    const pct        = invTotal > 0 ? +((invTotal / presBase) * 100).toFixed(1) : 0;
 
-    // Título gráfica
     document.getElementById('chart-title').textContent =
       'Rendimiento diario — ' + (isMes ? 'todo el mes' : SEMANAS.find(s=>s.id===key)?.label?.toLowerCase() || key);
-
-    // Presupuesto lateral
-    const presBase = isMes ? PRES.total : PRES.semanal;
-    const pct = +(invTotal / presBase * 100).toFixed(1);
     document.getElementById('bud-label').textContent  = isMes ? 'Mes completo' : SEMANAS.find(s=>s.id===key)?.label || '';
     document.getElementById('bud-spend').textContent  = '$' + fmt(invTotal);
-    document.getElementById('bud-sub').textContent    = isMes ? '4 al 10 de abril' : '';
     document.getElementById('bud-bar').style.width    = Math.min(pct, 100) + '%';
     document.getElementById('bud-pct').textContent    = pct + '% de $' + fmt(presBase);
     document.getElementById('meta-accum').textContent = '$' + fmt(invMeta) + (isMes ? ' acumulado' : ' esta semana');
 
-    // Tabla plataformas
     const rows = [
-      { p: 'Meta ADS',   b: 'b-meta',   inv: invMeta,    leads: leadsMeta   },
-      { p: 'Google ADS', b: 'b-google', inv: invGoogle,  leads: leadsGoogle },
-      { p: 'Total',      b: 'b-total',  inv: invTotal,   leads: leadsTotal  },
+      { p:'Meta ADS',   b:'b-meta',   inv:invMeta,   leads:leadsMeta   },
+      { p:'Google ADS', b:'b-google', inv:invGoogle,  leads:leadsGoogle },
+      { p:'Total',      b:'b-total',  inv:invTotal,   leads:leadsTotal  },
     ];
     document.getElementById('plat-table').innerHTML = rows.map((r, i) => {
       const cpl = r.leads > 0 ? '$' + (r.inv / r.leads).toFixed(2) : 'N/D';
-      return `<tr${i === 2 ? ' class="total"' : ''}>
+      return `<tr${i===2?' class="total"':''}>
         <td><span class="badge ${r.b}">${r.p}</span></td>
         <td>$${fmt(r.inv)}</td><td>${r.leads}</td><td>${cpl}</td>
       </tr>`;
     }).join('');
 
-    // Gráficas
     buildDailyChart(dias);
     buildCplChart(dias);
-    buildCountry(paises);
+    buildCountry(paises, d.registros?.total || 0);
 
-    // UTMs
-    const utmData = isMes
-      ? d.utms?.mesTop5 || []
-      : d.utms?.porSemana?.[key] || [];
+    const utmData = isMes ? d.utms?.mesTop5 || [] : d.utms?.porSemana?.[key] || [];
     buildUtms(utmData);
-
-    // Nota pie
-    const sem = SEMANAS.find(s => s.id === key);
-    if (!isMes && sem && (key === 's2')) {
-      document.getElementById('foot-note').textContent = '* Semana parcial — datos hasta el 10 de abril.';
-    } else {
-      document.getElementById('foot-note').textContent = '* Sem 3 y Sem 4 se activarán conforme avance el mes.';
-    }
   }
 
-  // ============================================================
-  // GRÁFICAS
-  // ============================================================
   function buildDailyChart(dias) {
     if (charts.daily) charts.daily.destroy();
     const labels = dias.map(d => fmtDia(d.fecha));
     const spend  = dias.map(d => d.gasto);
     const leads  = dias.map(d => d.leads);
     charts.daily = new Chart(document.getElementById('dailyChart'), {
-      type: 'bar',
-      data: { labels, datasets: [
-        { label: 'Gasto ($)', data: spend, backgroundColor: spend.map(v => v > 0 ? '#185FA5' : 'rgba(24,95,165,0.15)'), yAxisID: 'y', order: 2 },
-        { label: 'Leads', data: leads, type: 'line', borderColor: '#639922', backgroundColor: 'transparent', pointBackgroundColor: leads.map(v => v > 0 ? '#639922' : 'transparent'), yAxisID: 'y2', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 1, spanGaps: false },
+      type:'bar',
+      data:{ labels, datasets:[
+        { label:'Gasto ($)', data:spend, backgroundColor:'#185FA5', yAxisID:'y', order:2, borderRadius:3 },
+        { label:'Leads', data:leads, type:'line', borderColor:'#639922', backgroundColor:'transparent', pointBackgroundColor:'#639922', yAxisID:'y2', tension:0.3, borderWidth:2, pointRadius:3, order:1 },
       ]},
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-        scales: {
-          x: { ticks: { font: { size: 9 }, autoSkip: false, maxRotation: 0 } },
-          y: { position: 'left', ticks: { font: { size: 10 }, callback: v => '$' + v }, grid: { color: 'rgba(128,128,128,0.1)' } },
-          y2: { position: 'right', ticks: { font: { size: 10 } }, grid: { drawOnChartArea: false } },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false }, tooltip:{ mode:'index', intersect:false } },
+        scales:{
+          x:{ ticks:{ font:{ size:9 }, maxRotation:0 } },
+          y:{ position:'left', ticks:{ font:{ size:10 }, callback:v=>'$'+v }, grid:{ color:'rgba(128,128,128,0.1)' } },
+          y2:{ position:'right', ticks:{ font:{ size:10 } }, grid:{ drawOnChartArea:false } },
         }
       }
     });
@@ -657,67 +430,59 @@
   function buildCplChart(dias) {
     if (charts.cpl) charts.cpl.destroy();
     const labels  = dias.map(d => fmtDia(d.fecha));
-    const cplData = dias.map(d => d.leads > 0 ? +(d.gasto / d.leads).toFixed(2) : null);
+    const cplData = dias.map(d => d.leads > 0 ? +(d.gasto/d.leads).toFixed(2) : null);
     charts.cpl = new Chart(document.getElementById('cplChart'), {
-      type: 'line',
-      data: { labels, datasets: [
-        { label: 'CPL real', data: cplData, borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.07)', pointBackgroundColor: '#185FA5', tension: 0.3, borderWidth: 2, pointRadius: 3, fill: true, spanGaps: false },
-        { label: 'Meta', data: labels.map(() => PRES.metaCPL), borderColor: '#E24B4A', borderDash: [4,4], pointRadius: 0, borderWidth: 1.5, fill: false },
+      type:'line',
+      data:{ labels, datasets:[
+        { label:'CPL real', data:cplData, borderColor:'#185FA5', backgroundColor:'rgba(24,95,165,0.07)', pointBackgroundColor:'#185FA5', tension:0.3, borderWidth:2, pointRadius:3, fill:true, spanGaps:false },
+        { label:'Meta', data:labels.map(()=>PRES.metaCPL), borderColor:'#E24B4A', borderDash:[4,4], pointRadius:0, borderWidth:1.5, fill:false },
       ]},
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y != null ? '$' + ctx.parsed.y.toFixed(2) : 'Sin datos' } } },
-        scales: {
-          x: { ticks: { font: { size: 9 }, autoSkip: false, maxRotation: 0 } },
-          y: { ticks: { font: { size: 10 }, callback: v => '$' + v.toFixed(2) }, min: 0, max: 3, grid: { color: 'rgba(128,128,128,0.1)' } },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ ticks:{ font:{ size:9 }, maxRotation:0 } },
+          y:{ ticks:{ font:{ size:10 }, callback:v=>'$'+v.toFixed(2) }, min:0, grid:{ color:'rgba(128,128,128,0.1)' } },
         }
       }
     });
   }
 
-  function buildCountry(paises) {
-    const total = Object.values(paises).reduce((a, b) => a + b, 0);
-    const max   = Math.max(...Object.values(paises), 1);
-    const sorted = Object.entries(paises).sort((a, b) => b[1] - a[1]);
+  function buildCountry(paises, totalGlobal) {
+    const entries = Object.entries(paises).sort((a,b)=>b[1]-a[1]);
+    const total   = entries.reduce((a,[,v])=>a+v,0) || totalGlobal || 1;
+    const max     = Math.max(...entries.map(([,v])=>v), 1);
 
-    document.getElementById('total-regs').textContent = 'Total: ' + total + ' registros';
+    document.getElementById('total-regs').textContent = 'Total: ' + (totalGlobal || total) + ' registros';
 
-    // Lista
-    const list = document.getElementById('country-list');
-    list.innerHTML = sorted.map(([k, v]) => {
-      const p   = PAISES[k] || { name: k, flag: '🌎', color: '#888780' };
-      const pct = ((v / total) * 100).toFixed(1);
-      const barW = ((v / max) * 100).toFixed(1);
+    document.getElementById('country-list').innerHTML = entries.map(([k,v]) => {
+      const p   = PAISES[k] || { name:k, flag:'🌎', color:'#888780' };
+      const pct = ((v/total)*100).toFixed(1);
+      const bar = ((v/max)*100).toFixed(1);
       return `<div class="country-row">
         <span style="font-size:14px;width:20px;text-align:center">${p.flag}</span>
         <span class="country-name">${p.name}</span>
-        <div class="cbar-wrap"><div class="cbar-fill" style="width:${barW}%;background:${p.color}"></div></div>
+        <div class="cbar-wrap"><div class="cbar-fill" style="width:${bar}%;background:${p.color}"></div></div>
         <span class="country-count">${v}</span>
         <span class="country-pct">${pct}%</span>
       </div>`;
-    }).join('');
+    }).join('') || '<div style="color:var(--text3);font-size:12px;padding:1rem 0">Sin datos de países aún</div>';
 
-    // Donut
     if (charts.donut) charts.donut.destroy();
-    charts.donut = new Chart(document.getElementById('donutChart'), {
-      type: 'doughnut',
-      data: {
-        labels: sorted.map(([k]) => (PAISES[k] || { name: k }).name),
-        datasets: [{ data: sorted.map(([,v]) => v), backgroundColor: sorted.map(([k]) => (PAISES[k] || { color: '#888780' }).color), borderWidth: 2, borderColor: 'transparent', hoverOffset: 4 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '68%',
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' (' + ((ctx.parsed / total) * 100).toFixed(1) + '%)' } } }
-      }
-    });
-
-    // Leyenda donut
-    const legend = document.getElementById('donut-legend');
-    legend.innerHTML = sorted.slice(0, 5).map(([k, v]) => {
-      const p   = PAISES[k] || { name: k, color: '#888780' };
-      const pct = ((v / total) * 100).toFixed(1);
-      return `<div class="leg-row"><span class="leg-dot" style="background:${p.color}"></span><span class="leg-name">${p.name}</span><span class="leg-pct">${pct}%</span></div>`;
-    }).join('');
+    if (entries.length > 0) {
+      charts.donut = new Chart(document.getElementById('donutChart'), {
+        type:'doughnut',
+        data:{
+          labels: entries.map(([k])=>(PAISES[k]||{name:k}).name),
+          datasets:[{ data:entries.map(([,v])=>v), backgroundColor:entries.map(([k])=>(PAISES[k]||{color:'#888780'}).color), borderWidth:2, borderColor:'transparent', hoverOffset:4 }]
+        },
+        options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ display:false } } }
+      });
+      document.getElementById('donut-legend').innerHTML = entries.slice(0,5).map(([k,v])=>{
+        const p=(PAISES[k]||{name:k,color:'#888780'});
+        return `<div class="leg-row"><span class="leg-dot" style="background:${p.color}"></span><span class="leg-name">${p.name}</span><span class="leg-pct">${((v/total)*100).toFixed(1)}%</span></div>`;
+      }).join('');
+    }
   }
 
   function buildUtms(utms) {
@@ -727,50 +492,38 @@
       return;
     }
     const max = utms[0].leads;
-    document.getElementById('utm-list').innerHTML = utms.map((item, i) => `
+    document.getElementById('utm-list').innerHTML = utms.map((item,i)=>`
       <div class="rank-row">
-        <div class="rank-num ${MEDALS[i]}">${i + 1}</div>
+        <div class="rank-num ${MEDALS[i]}">${i+1}</div>
         <div class="rank-body">
-          <div class="utm-line"><span class="utm-lbl lbl-c">Campaña</span><span class="utm-val">${item.camp}</span></div>
-          <div class="utm-line"><span class="utm-lbl lbl-j">Conjunto</span><span class="utm-val">${item.conj}</span></div>
-          <div class="utm-line"><span class="utm-lbl lbl-a">Anuncio</span><span class="utm-val">${item.ad}</span></div>
+          <div class="utm-line"><span class="utm-lbl lbl-c">Campaña</span><span class="utm-val">${item.camp||'—'}</span></div>
+          <div class="utm-line"><span class="utm-lbl lbl-j">Conjunto</span><span class="utm-val">${item.conj||'—'}</span></div>
+          <div class="utm-line"><span class="utm-lbl lbl-a">Anuncio</span><span class="utm-val">${item.ad||'—'}</span></div>
           <div class="utm-bar-wrap"><div class="utm-bar-fill" style="width:${((item.leads/max)*100).toFixed(1)}%"></div></div>
         </div>
         <div class="leads-col"><div class="leads-num">${item.leads}</div><div class="leads-lbl">leads</div></div>
       </div>`).join('');
 
     if (charts.utm) charts.utm.destroy();
-    const barColors = ['#185FA5','#2476BE','#3B6D11','#4A8A18','#639922'];
     charts.utm = new Chart(document.getElementById('utmChart'), {
-      type: 'bar',
-      data: { labels: utms.map((_, i) => '#' + (i + 1)), datasets: [{ label: 'Leads', data: utms.map(d => d.leads), backgroundColor: barColors.slice(0, utms.length), borderRadius: 4 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { title: ctx => 'Combinación #' + (ctx[0].dataIndex + 1), label: ctx => ctx.parsed.y + ' leads', afterLabel: ctx => { const it = utms[ctx.dataIndex]; return [it.camp, it.conj, it.ad]; } } } },
-        scales: {
-          x: { ticks: { font: { size: 13 }, color: '#888780' }, grid: { display: false } },
-          y: { ticks: { font: { size: 10 } }, grid: { color: 'rgba(128,128,128,0.1)' } }
-        }
+      type:'bar',
+      data:{ labels:utms.map((_,i)=>'#'+(i+1)), datasets:[{ label:'Leads', data:utms.map(d=>d.leads), backgroundColor:['#185FA5','#2476BE','#3B6D11','#4A8A18','#639922'], borderRadius:4 }] },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{ x:{ ticks:{ font:{ size:13 }, color:'#888780' }, grid:{ display:false } }, y:{ ticks:{ font:{ size:10 } }, grid:{ color:'rgba(128,128,128,0.1)' } } }
       }
     });
   }
 
-  // ============================================================
-  // UTILIDADES
-  // ============================================================
-  function fmt(n) {
-    return Number(n || 0).toLocaleString('es-MX', { maximumFractionDigits: 0 });
-  }
+  function fmt(n) { return Number(n||0).toLocaleString('es-MX',{maximumFractionDigits:0}); }
   function fmtDia(fecha) {
     if (!fecha) return '';
-    const [, m, d] = fecha.split('-');
+    const [,m,d] = fecha.split('-');
     const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    return d + ' ' + meses[parseInt(m) - 1];
+    return d + ' ' + meses[parseInt(m)-1];
   }
 
-  // ============================================================
-  // INIT
-  // ============================================================
   loadData();
   </script>
 </div>
