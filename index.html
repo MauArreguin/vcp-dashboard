@@ -247,7 +247,9 @@
     </div>
     <div class="tabs">
       ${SEMANAS.map(s => {
-        const future = s.id === 's3' || s.id === 's4';
+        const hoy = new Date();
+        const inicio = new Date(s.inicio);
+        const future = inicio > hoy;
         return `<button class="tab${future?' future':''}" onclick="setPeriod('${s.id}',this)">${s.label}</button>`;
       }).join('')}
       <button class="tab active" onclick="setPeriod('month',this)">Todo el mes</button>
